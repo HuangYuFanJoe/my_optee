@@ -165,7 +165,7 @@ def main():
     #algo = 0x70414930    # TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256
     algo = 0x70004830    # TEE_ALG_RSASSA_PKCS1_V1_5_SHA256
 
-    f = open("/home/yufan/optees/new_optee/optee_os/keys/my.crt",'rb')
+    f = open("/home/yufan/optees/new_optee/optee_os/keys/ia.crt",'rb')
     cert = f.read()
     f.close() 
     cert_len = len(cert)
