@@ -179,7 +179,7 @@ static TEE_Result verify_cert(const struct shdr *shdr)
 out:
     mbedtls_x509_crt_free(&trust_crt);
     mbedtls_x509_crt_free(&crt);
-	mbedtls_x509_crl_free(&crl);
+    mbedtls_x509_crl_free(&crl);
     return res;
 
 }
