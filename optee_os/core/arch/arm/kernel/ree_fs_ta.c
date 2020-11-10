@@ -63,6 +63,7 @@
 #include <mbedtls/sha256.h>
 #include <mbedtls/x509_crt.h>
 #include <mbedtls/x509_csr.h>
+#include <mbedtls/x509_crl.h>
 #include <mbedtls/x509.h>
 #include <tee_internal_api.h>
 #include <mbedtls/md.h>
@@ -72,6 +73,8 @@
 
 extern const uint8_t ca_chain[];
 extern const size_t ca_chain_size;
+extern const uint8_t crl_buf[];
+extern const size_t crl_size;
 
 struct ree_fs_ta_handle {
 	struct shdr *nw_ta; /* Non-secure (shared memory) */
@@ -104,40 +107,54 @@ static TEE_Result verify_cert(const struct shdr *shdr)
 	mbedtls_x509_crt trust_crt = { };
 	mbedtls_x509_crt_init(&crt);
 	mbedtls_x509_crt_init(&trust_crt);
+
+	mbedtls_x509_crl crl = { };
+	mbedtls_x509_crl_init(&crl);
     
 	const uint8_t *ta_cert=SHDR_GET_CERT(shdr);  
 
 	//must +1 in certificate size to prevent format parsing error.
 	ret = mbedtls_x509_crt_parse(&crt, ca_chain,
 	                                    ca_chain_size+1);
-	   if (ret) {
-		      EMSG("ca error %d %x \n",ret,ret);
-	             EMSG("ca mbedtls_x509_crt_parse: failed: %#x", ret);
-	             return TEE_ERROR_BAD_FORMAT;
-	   }else{
+	if (ret) {
+	    EMSG("ca error %d %x \n",ret,ret);
+        EMSG("ca mbedtls_x509_crt_parse: failed: %#x", ret);
+        return TEE_ERROR_BAD_FORMAT;
+	}else{
 		        EMSG("ca cert ok \n");
 	}
+
 	uint8_t *buff=NULL;
 	buff=malloc((shdr->cert_size)+1);
 	memset(buff,'\0',(shdr->cert_size)+1);
 	memcpy(buff,ta_cert,shdr->cert_size);
-	   ret = mbedtls_x509_crt_parse(&trust_crt,buff,(shdr->cert_size)+1);
+
+	ret = mbedtls_x509_crt_parse(&trust_crt,buff,(shdr->cert_size)+1);
 	if (ret) {
-	          EMSG("ca2 mbedtls_x509_crt_parse: failed: %#x", ret);
-	          res = TEE_ERROR_BAD_FORMAT;
-	          goto out;
-	   }else{
+	    EMSG("ca2 mbedtls_x509_crt_parse: failed: %#x", ret);
+	    res = TEE_ERROR_BAD_FORMAT;
+	    goto out;
+	}else{
 		EMSG("ca2  cert ok \n");
 	}
 	
-	ret = mbedtls_x509_crt_verify(&trust_crt,&crt, NULL, NULL, &flags,NULL, NULL);
-	   if (ret) {
-		      char vrfy_buf[512];
-	             EMSG("verify mbedtls_x509_crt_verify: failed: %#x", ret);
-	       	  mbedtls_x509_crt_verify_info( vrfy_buf, sizeof( vrfy_buf ), "  ! ", flags );
-		      EMSG("error message----> %s\n",vrfy_buf);
-	             res = TEE_ERROR_BAD_FORMAT;
-	   }else{
+	ret = mbedtls_x509_crl_parse(&crl, crl_buf, crl_size+1);
+	if (ret) {
+		EMSG("crl mbedtls_x509_crl_parse: failed: %#x", ret);
+	    res = TEE_ERROR_BAD_FORMAT;
+	    goto out;
+	}else{
+		EMSG("crl ok \n");
+	}
+
+	ret = mbedtls_x509_crt_verify(&trust_crt,&crt, &crl, NULL, &flags,NULL, NULL);
+	if (ret) {
+		char vrfy_buf[512];
+	    	EMSG("verify mbedtls_x509_crt_verify: failed: %#x", ret);
+	    	mbedtls_x509_crt_verify_info( vrfy_buf, sizeof( vrfy_buf ), "  ! ", flags );
+			EMSG("error message----> %s\n",vrfy_buf);
+	        res = TEE_ERROR_BAD_FORMAT;
+	}else{
 		EMSG("compare ca and ca2 cert ok \n");
 	}
 		//DMSG("pk size=%d",sizeof(trust_crt.pk));

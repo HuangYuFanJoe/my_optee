@@ -4,6 +4,7 @@ srcs-$(CFG_REE_FS_TA) += ree_fs_ta.c
 srcs-$(CFG_EARLY_TA) += early_ta.c
 srcs-$(CFG_SECSTOR_TA) += secstor_ta.c
 srcs-y += x509/ca_chain.c
+srcs-y += x509/crl.c
 endif
 srcs-y += pseudo_ta.c
 srcs-y += tee_time.c
