@@ -31,6 +31,7 @@
  *  [SIRO] https://cabforum.org/wp-content/uploads/Chunghwatelecom201503cabforumV4.pdf
  */
 
+#include<trace.h>
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -1079,7 +1080,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
 
     /*
      * Certificate  ::=  SEQUENCE  {
-     *      tbsCertificate       TBSCertificate,
+     *      tbsCertificate       TBSCertificate,#include<trace.h>
      *      signatureAlgorithm   AlgorithmIdentifier,
      *      signatureValue       BIT STRING  }
      */
@@ -2283,7 +2284,7 @@ int mbedtls_x509_crt_check_extended_key_usage( const mbedtls_x509_crt *crt,
  * Return 1 if the certificate is revoked, or 0 otherwise.
  */
 int mbedtls_x509_crt_is_revoked( const mbedtls_x509_crt *crt, const mbedtls_x509_crl *crl )
-{
+{ 
     const mbedtls_x509_crl_entry *cur = &crl->entry;
 
     while( cur != NULL && cur->serial.len != 0 )
@@ -2291,7 +2292,7 @@ int mbedtls_x509_crt_is_revoked( const mbedtls_x509_crt *crt, const mbedtls_x509
         if( crt->serial.len == cur->serial.len &&
             memcmp( crt->serial.p, cur->serial.p, crt->serial.len ) == 0 )
         {
-            if( mbedtls_x509_time_is_past( &cur->revocation_date ) )
+            //if( mbedtls_x509_time_is_past( &cur->revocation_date ) )
                 return( 1 );
         }
 
