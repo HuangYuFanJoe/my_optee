@@ -1,0 +1,26 @@
+config BR2_PACKAGE_OPTEE_GET_CRL
+	bool "optee_get_crl"
+	help
+	  optee_get_crl project
+
+if BR2_PACKAGE_OPTEE_GET_CRL
+
+config BR2_PACKAGE_OPTEE_GET_CRL_SITE
+	string "OP-TEE get_crl path"
+	default ""
+	help
+	  The path to the source directory of OP-TEE get_crl
+
+config BR2_PACKAGE_OPTEE_GET_CRL_SDK
+	string "OPTEE SDK path"
+	default ""
+	help
+	  some help
+
+config BR2_PACKAGE_OPTEE_GET_CRL_CROSS_COMPILE
+	string "OPTEE cross compiler"
+	default ""
+	help
+	  some help
+
+endif
