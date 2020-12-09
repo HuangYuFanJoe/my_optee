@@ -7,9 +7,10 @@
 		{ 0xb3, 0xde, 0x02, 0x42, 0xac, 0x13, 0x00, 0x04} }
 
 #define MAX_RECV_SIZE 1000
+#define MAX_REQUESTER_SIZE 20
 
 typedef struct {
-	char *requester;
+	char requester[MAX_REQUESTER_SIZE];
 	uint32_t date;
 } Request_Information;
 

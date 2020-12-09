@@ -95,13 +95,14 @@ Request_Information *get_request_info(TEEC_Result *result,
 	/*
 	 * TA_CMD_GET_CRL
 	 */
-	printf("Invoke TA to get the CRL from server\n");
+	//printf("Invoke TA to get the CRL from server\n");
 	*result = TEEC_InvokeCommand(session, TA_CMD_GET_CRL,
 	 			     operation, err_origin);
 	if (*result != TEEC_SUCCESS) {
 		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
 			*result, *err_origin);
 	}
+	
 	printf("Get the request information successfully.\n");
 
 	printf("Requester : %s\n",  RI->requester);
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
  	choice = atoi(argv[1]); 
-	if (choice != 0 && choice != 1) {
+	if (choice != 0 && choice != 1 && choice != 2) {
 		printf("Choice must be 0、1 or 2 only!!!\n");
 		exit(EXIT_FAILURE);
 	}
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
     
 	
 	switch(choice){
-    	case 2 :
+    case 2 :
         RI = get_request_info(&res, &sess, &op, &err_origin);
         break;
 	case 1 :

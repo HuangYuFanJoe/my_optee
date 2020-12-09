@@ -71,7 +71,7 @@ static TEE_Result tcp_connect(TEE_tcpSocket_Setup *setup,
 
 	setup->ipVersion   = TEE_IP_VERSION_DC;
 	setup->server_addr = "140.115.52.122";
-	setup->server_port = "8080";
+	setup->server_port = 8080U;
 
 	res = TEE_tcpSocket->open(ctx, setup, &proto_error);
 	if (res != TEE_SUCCESS) {
@@ -91,7 +91,7 @@ static TEE_Result udp_connect(TEE_udpSocket_Setup *setup,
 
 	setup->ipVersion   = TEE_IP_VERSION_DC;
 	setup->server_addr = "140.115.52.122";
-	setup->server_port = "8080";
+	setup->server_port = 8080U;
 
 	res = TEE_udpSocket->open(ctx, setup, &proto_error);
 	if (res != TEE_SUCCESS) {
@@ -116,12 +116,11 @@ static char *prepare_message(uint32_t param_types, TEE_Param params[4], int *mes
 	TEE_Time ree_time;
 	TEE_GetREETime(&ree_time);
 
-	Request_Information *RI;
-	RI = params[0].memref.buffer;
+	Request_Information *RI = NULL;
+	RI = (Request_Information *) params[0].memref.buffer;
 	RI->date = ree_time.seconds;
-	RI->requester = "Yufan";
+	strcpy(RI->requester, "Yufan");
 	
-
 	*message_size = snprintf(NULL, 0, 
 			"Requester=%s , date=%d", RI->requester, RI->date);
 
@@ -148,7 +147,7 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 	TEE_tcpSocket_Setup tcpSetup_Relation;
 	TEE_udpSocket_Setup udpSetup_Relation;
 
-	char *message, *recv_message;
+	char *message = NULL, *recv_message = NULL;
 	int message_size = 0, recv_message_size = MAX_RECV_SIZE;
 
 	message = prepare_message(param_types, params, &message_size);
@@ -156,7 +155,7 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 		return TEE_ERROR_OUT_OF_MEMORY;
 	}
 
-	IMSG("Request message:\n%s", message);
+	IMSG("Request message: %s\n", message);
 
 	IMSG("Send request to Relation Server...\n");
 	res = tcp_connect(&tcpSetup_Relation, &socketCtx_Relation);
@@ -167,6 +166,9 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 		return TEE_ERROR_BAD_PARAMETERS;
 	}
 
+	IMSG("TCP/UDP connected\n");
+
+	socket_Relation = TEE_tcpSocket;
 	res = socket_Relation->send(socketCtx_Relation, message, &message_size, TEE_TIMEOUT_INFINITE);
 	if (res != TEE_SUCCESS) {
 		EMSG("Relation server socket send() failed. Error code: %#0" PRIX32, res);
@@ -175,15 +177,19 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 
 	IMSG("Send request to Relation server successfully!!!\n");
     
-
-        res = socket_Relation->recv(socketCtx_Relation, recv_message, &recv_message_size, TEE_TIMEOUT_INFINITE);
+	recv_message = (char *)TEE_Malloc(recv_message_size, TEE_MALLOC_FILL_ZERO);
+	if(!recv_message)
+		return TEE_ERROR_OUT_OF_MEMORY;
+	
+    res = socket_Relation->recv(socketCtx_Relation, recv_message, &recv_message_size, 100);
 	if (res != TEE_SUCCESS) {
 		EMSG("Relation server socket recv() failed. Error code: %#0" PRIX32, res);
 		return res;
 	}
+	TEE_Free(recv_message);
 
 	IMSG("Receive CRL successfully!!!\n");
-        IMSG("Receive message: %s\n", recv_message);
+    IMSG("Receive message: %s\n", recv_message);
     
 	socket_Relation->close(socketCtx_Relation);
 	
