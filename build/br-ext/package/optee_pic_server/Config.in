@@ -1,0 +1,26 @@
+config BR2_PACKAGE_OPTEE_PIC_SERVER
+	bool "optee_pic_server"
+	help
+	  optee_pic_server project
+
+if BR2_PACKAGE_OPTEE_PIC_SERVER
+
+config BR2_PACKAGE_OPTEE_PIC_SERVER_SITE
+	string "OP-TEE pic_server path"
+	default ""
+	help
+	  The path to the source directory of OP-TEE pic_server
+
+config BR2_PACKAGE_OPTEE_PIC_SERVER_SDK
+	string "OPTEE SDK path"
+	default ""
+	help
+	  some help
+
+config BR2_PACKAGE_OPTEE_PIC_SERVER_CROSS_COMPILE
+	string "OPTEE cross compiler"
+	default ""
+	help
+	  some help
+
+endif

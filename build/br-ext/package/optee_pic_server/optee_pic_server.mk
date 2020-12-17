@@ -1,0 +1,29 @@
+OPTEE_PIC_SERVER_VERSION = 1.0
+OPTEE_PIC_SERVER_SOURCE = local
+OPTEE_PIC_SERVER_SITE = $(BR2_PACKAGE_OPTEE_PIC_SERVER_SITE)
+OPTEE_PIC_SERVER_SITE_METHOD = local
+OPTEE_PIC_SERVER_INSTALL_STAGING = YES
+OPTEE_PIC_SERVER_DEPENDENCIES = optee_client_ext host-python-pycrypto
+OPTEE_PIC_SERVER_SDK = $(BR2_PACKAGE_OPTEE_PIC_SERVER_SDK)
+OPTEE_PIC_SERVER_CONF_OPTS = -DOPTEE_PIC_SERVER_SDK=$(OPTEE_PIC_SERVER_SDK)
+
+define OPTEE_PIC_SERVER_BUILD_TAS
+	@$(foreach f,$(wildcard $(@D)/*/ta/Makefile), \
+		echo Building $f && \
+			$(MAKE) CROSS_COMPILE="$(shell echo $(BR2_PACKAGE_OPTEE_PIC_SERVER_CROSS_COMPILE))" \
+			O=out TA_DEV_KIT_DIR=$(OPTEE_PIC_SERVER_SDK) \
+			$(TARGET_CONFIGURE_OPTS) -C $(dir $f) all &&) true
+endef
+
+define OPTEE_PIC_SERVER_INSTALL_TAS
+	@$(foreach f,$(wildcard $(@D)/*/ta/out/*.ta), \
+		mkdir -p $(TARGET_DIR)/lib/optee_armtz && \
+		$(INSTALL) -v -p  --mode=444 \
+			--target-directory=$(TARGET_DIR)/lib/optee_armtz $f \
+			&&) true
+endef
+
+OPTEE_PIC_SERVER_POST_BUILD_HOOKS += OPTEE_PIC_SERVER_BUILD_TAS
+OPTEE_PIC_SERVER_POST_INSTALL_TARGET_HOOKS += OPTEE_PIC_SERVER_INSTALL_TAS
+
+$(eval $(cmake-package))
