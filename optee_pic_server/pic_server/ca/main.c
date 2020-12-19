@@ -118,7 +118,7 @@ Receive_Information *get_pic(TEEC_Result *result,
 
 		ssize_t n;
 		FILE *fp = fopen("/usr/image.png", "wb");
-		while(n = recv(connfd, RI->data, MAX_LINE, 0) > 0){
+		while((n = recv(connfd, RI->data, MAX_LINE, 0)) > 0){
 			total += n;
 			if(fwrite(RI->data, sizeof(char), n, fp) != n){
 				perror("Write File Error");
@@ -127,7 +127,7 @@ Receive_Information *get_pic(TEEC_Result *result,
 			memset(RI->data, 0, MAX_LINE);
 		}
 		fclose(fp);
-		close(sockfd);
+		close(connfd);
 	}
 
 	return RI;
