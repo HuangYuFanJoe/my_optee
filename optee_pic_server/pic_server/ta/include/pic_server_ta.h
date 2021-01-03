@@ -20,7 +20,7 @@ typedef struct {
 } Receive_Information;
 
 struct Thread_arguments {
-    int connfd;
+	int connfd;
 	int count;
 	char data[MAX_LINE];
 };

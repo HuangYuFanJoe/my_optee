@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	TEEC_Operation op;
 	TEEC_UUID uuid = TA_GET_CRL_UUID;
 	uint32_t err_origin;
-    Request_Information *RI = NULL;
+	Request_Information *RI = NULL;
 
 	/* Initialize a context connecting us to the TEE */
 	res = TEEC_InitializeContext(NULL, &ctx);
@@ -159,9 +159,9 @@ int main(int argc, char *argv[])
     
 	
 	switch(choice){
-    case 2 :
-        RI = get_request_info(&res, &sess, &op, &err_origin);
-        break;
+	case 2 :
+		RI = get_request_info(&res, &sess, &op, &err_origin);
+		break;
 	case 1 :
 		get_TEE_time(&res, &sess, &op, &err_origin);
 		break;

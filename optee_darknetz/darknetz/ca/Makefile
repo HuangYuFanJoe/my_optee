@@ -29,7 +29,7 @@ CFLAGS += -Iinclude/ -Isrc/ -Iexamples/  -I./src/ -I./examples/
 LDADD += -lteec -L$(TEEC_EXPORT)/lib
 #DEPS = $(wildcard src/*.h) inlcude/darknet.h inlcude/main.h
 
-BINARY = optee_example_darknetp
+BINARY = optee_darknetz
 
 .PHONY: all
 #all: $(ALIB) $(BINARY)

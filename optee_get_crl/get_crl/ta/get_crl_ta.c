@@ -181,7 +181,7 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 	if(!recv_message)
 		return TEE_ERROR_OUT_OF_MEMORY;
 	
-    res = socket_Relation->recv(socketCtx_Relation, recv_message, &recv_message_size, 100);
+	res = socket_Relation->recv(socketCtx_Relation, recv_message, &recv_message_size, 100);
 	if (res != TEE_SUCCESS) {
 		EMSG("Relation server socket recv() failed. Error code: %#0" PRIX32, res);
 		return res;
@@ -189,7 +189,7 @@ static TEE_Result socket_client(uint32_t param_types, TEE_Param params[4])
 	TEE_Free(recv_message);
 
 	IMSG("Receive CRL successfully!!!\n");
-    IMSG("Receive message: %s\n", recv_message);
+	IMSG("Receive message: %s\n", recv_message);
     
 	socket_Relation->close(socketCtx_Relation);
 	

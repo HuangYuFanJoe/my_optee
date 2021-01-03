@@ -78,7 +78,7 @@ void get_REE_time(TEEC_Result *result, TEEC_Session *session,
 void *serverThread(void *v_args){
 	struct Thread_arguments *args = (struct Thread_arguments *)v_args;
 
-    char count[2] = {};
+	char count[2] = {};
 	sprintf(count, "%d", args->count);
 	char filepath[MAX_FILEPATH_SIZE] = "/data/image";
 	strcat(filepath, count);
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
 	switch(choice){
 		case 2 :
 		    RI = get_pic(&res, &sess, &op, &err_origin);
-            break;
+		    break;
 		case 1 :
 		    get_TEE_time(&res, &sess, &op, &err_origin);
 		    break;
