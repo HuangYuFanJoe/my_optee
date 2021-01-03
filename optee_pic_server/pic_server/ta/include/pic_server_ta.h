@@ -12,12 +12,18 @@
 #define LISTENPORT 8787
 #define SERVERPORT 8080
 #define MAX_sTIME 30
+#define MAX_FILEPATH_SIZE 50
 
 typedef struct {
 	char requester[MAX_REQUESTER_SIZE];
-	char data[MAX_LINE];
 	char *date;
 } Receive_Information;
+
+struct Thread_arguments {
+    int connfd;
+	int count;
+	char data[MAX_LINE];
+};
 
 /* The function IDs implemented in this TA */
 #define TA_CMD_GET_SYSTEM_TIME 		0

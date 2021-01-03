@@ -75,6 +75,30 @@ void get_REE_time(TEEC_Result *result, TEEC_Session *session,
 	printf("Seconds: %d\n Millis: %d\n", seconds, millis);
 }
 
+void *serverThread(void *v_args){
+	struct Thread_arguments *args = (struct Thread_arguments *)v_args;
+
+    char count[2] = {};
+	sprintf(count, "%d", args->count);
+	char filepath[MAX_FILEPATH_SIZE] = "/data/image";
+	strcat(filepath, count);
+	strcat(filepath, ".png");
+
+	ssize_t n, total = 0;
+	FILE *fp = fopen(filepath, "wb");
+	while((n = recv(args->connfd, args->data, MAX_LINE, 0)) > 0){
+		total += n;
+		if(fwrite(args->data, sizeof(char), n, fp) != n){
+			perror("Write File Error");
+			exit(1);
+		}
+		memset(args->data, 0, MAX_LINE);
+	}
+	fclose(fp);
+	close(args->connfd);
+	pthread_exit(NULL);
+}
+
 Receive_Information *get_pic(TEEC_Result *result,
 					      TEEC_Session *session,
 					      TEEC_Operation *operation,
@@ -89,48 +113,42 @@ Receive_Information *get_pic(TEEC_Result *result,
 		return NULL;
 	}
 	memset(RI, 0, sizeof(Receive_Information));
+	
+	struct Thread_arguments args;
+
+	/* Socket connect */
 
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) 
-    {
-        perror("Can't allocate sockfd");
-        exit(1);
-    }
-
-	struct sockaddr_in clientaddr, serveraddr;
-    memset(&serveraddr, 0, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serveraddr.sin_port = htons(SERVERPORT);
-
-    bind(sockfd, (const struct sockaddr *) &serveraddr, sizeof(serveraddr));
-    listen(sockfd, LISTENPORT);
-
-    socklen_t addrlen = sizeof(clientaddr);
-	ssize_t total = 0;
-	while(true){
-		int connfd = accept(sockfd, (struct sockaddr *) &clientaddr, &addrlen);
-		recv(connfd, RI->requester, MAX_REQUESTER_SIZE, 0);
-		time_t mytime = time(NULL);
-		RI->date = ctime(&mytime);
-		printf("Requester : %s\n",  RI->requester);
-		printf("Date: %s\n", RI->date);
-
-		ssize_t n;
-		FILE *fp = fopen("/usr/image.png", "wb");
-		while((n = recv(connfd, RI->data, MAX_LINE, 0)) > 0){
-			total += n;
-			if(fwrite(RI->data, sizeof(char), n, fp) != n){
-				perror("Write File Error");
-				exit(1);
-			}
-			memset(RI->data, 0, MAX_LINE);
-		}
-		fclose(fp);
-		close(connfd);
+	if (sockfd == -1) 
+	{
+		perror("Can't allocate sockfd");
+		exit(1);
 	}
 
-	return RI;
+	struct sockaddr_in clientaddr, serveraddr;
+	memset(&serveraddr, 0, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serveraddr.sin_port = htons(SERVERPORT);
+	
+	bind(sockfd, (const struct sockaddr *) &serveraddr, sizeof(serveraddr));
+	listen(sockfd, LISTENPORT);
+	
+	socklen_t addrlen = sizeof(clientaddr);
+	int count = 1;
+	while(true){  // receive data
+		int connfd = accept(sockfd, (struct sockaddr *) &clientaddr, &addrlen);
+		//recv(connfd, RI->requester, MAX_REQUESTER_SIZE, 0);
+		//printf("Requester : %s\n",  RI->requester);
+		time_t mytime = time(NULL);
+		RI->date = ctime(&mytime);
+		printf("Date: %s\n", RI->date);
+		args.connfd = connfd;
+		args.count = count;
+        pthread_t t;
+        pthread_create(&t, NULL, &serverThread, (void *)&args);
+		count = (count % 10) + 1;
+	}
 
 	operation->paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT,
 						 TEEC_NONE,
@@ -173,7 +191,7 @@ int main(int argc, char *argv[])
 	TEEC_Operation op;
 	TEEC_UUID uuid = TA_PIC_SERVER_UUID;
 	uint32_t err_origin;
-    Receive_Information *RI = NULL;
+        Receive_Information *RI = NULL;
 
 	/* Initialize a context connecting us to the TEE */
 	res = TEEC_InitializeContext(NULL, &ctx);
@@ -203,17 +221,17 @@ int main(int argc, char *argv[])
     
 	
 	switch(choice){
-    case 2 :
-        RI = get_pic(&res, &sess, &op, &err_origin);
-        break;
-	case 1 :
-		get_TEE_time(&res, &sess, &op, &err_origin);
-		break;
-	case 0 :
-		get_REE_time(&res, &sess, &op, &err_origin);
-		break;
-	default:
-		break;
+		case 2 :
+		    RI = get_pic(&res, &sess, &op, &err_origin);
+            break;
+		case 1 :
+		    get_TEE_time(&res, &sess, &op, &err_origin);
+		    break;
+		case 0 :
+		    get_REE_time(&res, &sess, &op, &err_origin);
+		    break;
+		default:
+		    break;
 
 	}
 	/*

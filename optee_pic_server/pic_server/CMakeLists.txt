@@ -8,6 +8,7 @@ target_include_directories(${PROJECT_NAME}
 			   PRIVATE ta/include
 			   PRIVATE include)
 
-target_link_libraries (${PROJECT_NAME} PRIVATE teec)
+target_link_libraries (${PROJECT_NAME} PRIVATE teec
+                       libpthread.so.0)
 
 install (TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
