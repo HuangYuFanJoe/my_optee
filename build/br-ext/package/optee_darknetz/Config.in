@@ -1,0 +1,26 @@
+config BR2_PACKAGE_OPTEE_DARKNETZ
+	bool "optee_darknetz"
+	help
+	  optee_darknetz project
+
+if BR2_PACKAGE_OPTEE_DARKNETZ
+
+config BR2_PACKAGE_OPTEE_DARKNETZ_SITE
+	string "OP-TEE darknetz path"
+	default ""
+	help
+	  The path to the source directory of OP-TEE darknetz
+
+config BR2_PACKAGE_OPTEE_DARKNETZ_SDK
+	string "OPTEE darknetz path"
+	default ""
+	help
+	  some help
+
+config BR2_PACKAGE_OPTEE_DARKNETZ_CROSS_COMPILE
+	string "OPTEE cross compiler"
+	default ""
+	help
+	  some help
+
+endif
