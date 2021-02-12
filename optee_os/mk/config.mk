@@ -140,7 +140,7 @@ CFG_TEE_FW_MANUFACTURER ?= FW_MAN_UNDEF
 CFG_REE_FS ?= y
 
 # RPMB file system support
-CFG_RPMB_FS ?= n
+CFG_RPMB_FS ?= y
 
 # Device identifier used when CFG_RPMB_FS = y.
 # The exact meaning of this value is platform-dependent. On Linux, the
@@ -188,7 +188,7 @@ CFG_RPMB_FS_CACHE_ENTRIES ?= 0
 # This option is useful in the following situations:
 # - Testing
 # - RPMB key provisioning in a controlled environment (factory setup)
-CFG_RPMB_WRITE_KEY ?= n
+CFG_RPMB_WRITE_KEY ?= y
 
 # Embed public part of this key in OP-TEE OS
 TA_SIGN_KEY ?= keys/default_ta.pem
