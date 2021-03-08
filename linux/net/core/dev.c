@@ -4472,6 +4472,7 @@ out:
 
 static int __netif_receive_skb(struct sk_buff *skb)
 {
+	//printk("packet priority: %d\n", skb->priority);
 	int ret;
 
 	if (sk_memalloc_socks() && skb_pfmemalloc(skb)) {
