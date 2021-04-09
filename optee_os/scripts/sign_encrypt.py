@@ -128,7 +128,7 @@ def get_args(logger):
 
 
 def main():
-    from Cryptodome.Signature import pss
+    #from Cryptodome.Signature import pss
     from Cryptodome.Signature import PKCS1_v1_5
     from Cryptodome.Hash import SHA256
     from Cryptodome.PublicKey import RSA
